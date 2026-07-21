@@ -676,13 +676,11 @@ html, body {
 }
 
 #dplayer-container .dplayer-video {
-  object-fit: contain;
+  object-fit: contain !important;
 }
 
 #dplayer-container .dplayer-video-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #000 !important;
 }
 
 .audio-name {
