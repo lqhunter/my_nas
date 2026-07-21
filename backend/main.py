@@ -53,14 +53,18 @@ def save_settings(settings):
     with open(SETTINGS_FILE, "w") as f:
         json.dump(settings, f, indent=2)
 
+def get_media_root():
+    return load_settings().get("mediaRoot", MEDIA_ROOT)
+
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
 mimetypes.init()
 
 def safe_path(user_path: str) -> Path:
     user_path = user_path.lstrip("/")
-    resolved = (Path(MEDIA_ROOT) / user_path).resolve()
-    if not str(resolved).startswith(os.path.realpath(MEDIA_ROOT)):
+    root = Path(get_media_root())
+    resolved = (root / user_path).resolve()
+    if not str(resolved).startswith(os.path.realpath(root)):
         raise HTTPException(403, "Access denied")
     return resolved
 
@@ -102,7 +106,7 @@ async def list_files(path: str = "", sort: str = "name", order: str = "asc"):
         return {
             "type": "file",
             "name": target.name,
-            "path": str(target.relative_to(MEDIA_ROOT)).replace("\\", "/"),
+            "path": str(target.relative_to(get_media_root())).replace("\\", "/"),
             "size": stat.st_size,
             "size_formatted": format_size(stat.st_size),
             "mtime": stat.st_mtime,
@@ -115,7 +119,7 @@ async def list_files(path: str = "", sort: str = "name", order: str = "asc"):
     for entry in target.iterdir():
         try:
             stat = entry.stat()
-            rel_path = str(entry.relative_to(MEDIA_ROOT)).replace("\\", "/")
+            rel_path = str(entry.relative_to(get_media_root())).replace("\\", "/")
             items.append({
                 "name": entry.name,
                 "path": rel_path,
@@ -139,7 +143,8 @@ async def list_files(path: str = "", sort: str = "name", order: str = "asc"):
     elif sort == "type":
         items.sort(key=lambda x: (not x["is_directory"], x["file_type"], x["name"].lower()), reverse=reverse)
 
-    current_path = str(target.relative_to(MEDIA_ROOT)).replace("\\", "/") if target != Path(MEDIA_ROOT) else ""
+    root_path = Path(get_media_root())
+    current_path = str(target.relative_to(root_path)).replace("\\", "/") if target != root_path else ""
     breadcrumbs = []
     if current_path:
         parts = current_path.replace("\\", "/").split("/")
@@ -168,7 +173,7 @@ async def file_info(path: str = ""):
     stat = target.stat()
     return {
         "name": target.name,
-        "path": str(target.relative_to(MEDIA_ROOT)).replace("\\", "/"),
+        "path": str(target.relative_to(get_media_root())).replace("\\", "/"),
         "size": stat.st_size,
         "size_formatted": format_size(stat.st_size),
         "mtime": stat.st_mtime,
@@ -185,7 +190,7 @@ async def create_directory(path: str = ""):
     if target.exists():
         raise HTTPException(400, "Path already exists")
     target.mkdir(parents=True, exist_ok=True)
-    return {"status": "ok", "path": str(target.relative_to(MEDIA_ROOT)).replace("\\", "/")}
+    return {"status": "ok", "path": str(target.relative_to(get_media_root())).replace("\\", "/")}
 
 # --- Upload ---
 
@@ -223,9 +228,9 @@ async def rename_file(data: dict):
     target.rename(new_path)
     return {
         "status": "ok",
-        "path": str(new_path.relative_to(MEDIA_ROOT)).replace("\\", "/"),
-        "old_path": path,
-    }
+"path": str(new_path.relative_to(get_media_root())).replace("\\", "/"),
+            "old_path": path,
+        }
 
 # --- Delete ---
 
