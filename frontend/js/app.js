@@ -249,6 +249,7 @@ function openFile(path) {
 }
 
 function playVideo(path) {
+  console.log(`[DPlayer v${DPlayer.version}] PLAY video path=${path} url=${getMediaUrl("video", path)}`);
   if (dplayer) { dplayer.destroy(); dplayer = null; }
   const overlay = document.getElementById("player-overlay");
   const title = document.getElementById("player-title");
@@ -262,9 +263,12 @@ function playVideo(path) {
     autoplay: true,
     screenshot: false,
   });
+  dplayer.on("error", () => console.error(`[DPlayer] video error`));
+  dplayer.on("play", () => console.log(`[DPlayer] playing`));
 }
 
 function playAudio(path) {
+  console.log(`[DPlayer v${DPlayer.version}] PLAY audio path=${path} url=${getMediaUrl("audio", path)}`);
   if (dplayer) { dplayer.destroy(); dplayer = null; }
   const overlay = document.getElementById("player-overlay");
   const title = document.getElementById("player-title");
@@ -277,6 +281,7 @@ function playAudio(path) {
     audio: { url: getMediaUrl("audio", path), name: path.split("/").pop() },
     autoplay: true,
   });
+  dplayer.on("error", () => console.error(`[DPlayer] audio error`));
 }
 
 function closePlayer() {
@@ -610,6 +615,7 @@ async function saveSettings() {
 
 // --- Init ---
 function init() {
+  console.log(`[MediaServer] DPlayer v${DPlayer.version}, API=${API_BASE}`);
   loadSettings().then(() => loadDirectory(""));
 
   const upload = setupUpload();
