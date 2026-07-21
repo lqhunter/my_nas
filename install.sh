@@ -13,7 +13,7 @@ echo -e "${BLUE}>>> Media Server Installer${NC}"
 if ! command -v docker &>/dev/null; then
     echo -e "${BLUE}>>> Installing Docker...${NC}"
     apt-get update -qq 2>/dev/null || true
-    apt-get install -y -qq docker.io docker-compose-v2 2>/dev/null || {
+    apt-get install -y -qq docker.io 2>/dev/null || {
         echo -e "${BLUE}>>> Trying official script...${NC}"
         curl -fsSL https://get.docker.com -o /tmp/get-docker.sh && sh /tmp/get-docker.sh || {
             echo -e "${RED}>>> Install Docker manually: https://docs.docker.com/engine/install/${NC}"
@@ -21,6 +21,11 @@ if ! command -v docker &>/dev/null; then
         }
     }
     hash -r
+fi
+
+if ! docker compose version &>/dev/null && ! command -v docker-compose &>/dev/null; then
+    echo -e "${BLUE}>>> Installing Docker Compose...${NC}"
+    apt-get install -y -qq docker-compose-plugin 2>/dev/null || true
 fi
 
 mkdir -p "$MEDIA_DIR"
