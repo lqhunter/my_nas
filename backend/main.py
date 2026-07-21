@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+import hashlib
 from pathlib import Path
 from typing import Optional
 
@@ -263,8 +264,10 @@ async def get_thumbnail(path: str = "", size: int = 300):
         raise HTTPException(404, "File not found")
 
     log(f"THUMB path={path} size={size}")
-    cache_key = f"{target.name}_{size}_{target.stat().st_mtime}"
-    cache_path = Path(THUMBNAIL_DIR) / f"{hash(cache_key)}.jpg"
+    st = target.stat()
+    cache_key = f"{target.name}_{st.st_size}_{st.st_mtime}_{size}"
+    cache_name = hashlib.md5(cache_key.encode()).hexdigest() + ".jpg"
+    cache_path = Path(THUMBNAIL_DIR) / cache_name
     if cache_path.exists():
         log(f"THUMB cache-hit path={path}")
         return FileResponse(str(cache_path), media_type="image/jpeg")

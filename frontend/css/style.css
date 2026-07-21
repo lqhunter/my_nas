@@ -675,6 +675,16 @@ html, body {
   min-height: 0;
 }
 
+#dplayer-container .dplayer-video {
+  object-fit: contain;
+}
+
+#dplayer-container .dplayer-video-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .audio-name {
   font-size: 18px;
   font-weight: 600;
