@@ -57,7 +57,14 @@ fi
 echo -e "${BLUE}>>> Starting Media Server on port $PORT...${NC}"
 echo -e "${BLUE}>>> Media directory: $MEDIA_DIR${NC}"
 
-MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" $DOCKER compose -p media-server up -d --build
+if $DOCKER compose version &>/dev/null; then
+    MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" $DOCKER compose -p media-server up -d --build
+elif command -v docker-compose &>/dev/null; then
+    MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" docker-compose -p media-server up -d --build
+else
+    echo -e "${RED}>>> Docker Compose not available, install manually${NC}"
+    exit 1
+fi
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
