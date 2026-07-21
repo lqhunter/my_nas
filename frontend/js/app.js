@@ -586,6 +586,8 @@ function closeSettings() {
 
 async function saveSettings() {
   const data = {
+    mediaRoot: document.getElementById("setting-media-root").value,
+    port: parseInt(document.getElementById("setting-port").value) || 8080,
     defaultView: document.getElementById("setting-default-view").value,
     defaultSort: document.getElementById("setting-default-sort").value,
     thumbnailSize: parseInt(document.getElementById("setting-thumbnail-size").value),

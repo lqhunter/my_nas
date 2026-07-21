@@ -454,7 +454,7 @@ async def get_settings():
 
 @app.put("/api/settings")
 async def update_settings(data: dict):
-    allowed = {"defaultSort", "defaultView", "thumbnailSize"}
+    allowed = {"mediaRoot", "port", "defaultSort", "defaultView", "thumbnailSize"}
     current = load_settings()
     for k, v in data.items():
         if k in allowed:

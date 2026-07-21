@@ -181,13 +181,13 @@
         <div class="settings-section-title">Container Config (restart required)</div>
         <div class="setting-row">
           <label>Media Directory</label>
-          <input type="text" class="modal-input" id="setting-media-root" readonly>
-          <span class="setting-hint">Set via MEDIA_ROOT env or -v volume mount</span>
+          <input type="text" class="modal-input" id="setting-media-root">
+          <span class="setting-hint">Change requires container restart: docker run -v NEW_PATH:/media</span>
         </div>
         <div class="setting-row">
           <label>Port</label>
-          <input type="text" class="modal-input" id="setting-port" readonly>
-          <span class="setting-hint">Set via PORT env or docker run -p</span>
+          <input type="text" class="modal-input" id="setting-port">
+          <span class="setting-hint">Change requires container restart: docker run -p NEW_PORT:8000</span>
         </div>
       </div>
       <div class="settings-section">
