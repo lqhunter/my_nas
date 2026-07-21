@@ -667,42 +667,27 @@ html, body {
   white-space: nowrap;
 }
 
-.player-content video,
-.player-content audio {
+#video-player-wrapper video,
+#audio-player-wrapper audio {
   width: 100%;
   display: block;
 }
 
-.player-content video {
+#video-player-wrapper video {
   max-height: 75vh;
   background: #000;
-}
-
-#video-player-wrapper:not(.hidden) {
-  display: block;
-}
-
-.plyr {
-  border-radius: 0;
 }
 
 .plyr--video {
   max-height: 75vh;
 }
 
-.plyr__control--overlaid {
+.plyr--video .plyr__control--overlaid {
   background: var(--accent);
 }
 
-.plyr--video .plyr__control.plyr__tab-focus,
-.plyr--video .plyr__control:hover,
-.plyr--audio .plyr__control.plyr__tab-focus,
-.plyr--audio .plyr__control:hover {
-  background: var(--accent);
-}
-
-.plyr__menu__container .plyr__control[role="menuitemradio"][aria-checked="true"]::before {
-  background: var(--accent);
+.plyr--video .plyr__control:hover {
+  background: var(--accent) !important;
 }
 
 #audio-player-wrapper {
