@@ -21,25 +21,23 @@ mkdir -p "$MEDIA_DIR"
 echo -e "${BLUE}>>> Starting Media Server on port $PORT...${NC}"
 echo -e "${BLUE}>>> Media directory: $MEDIA_DIR${NC}"
 
+echo -e "${BLUE}>>> Pulling latest image...${NC}"
+sudo docker pull "ghcr.io/$REPO:latest" 2>/dev/null || {
+    echo -e "${BLUE}>>> Building image locally...${NC}"
+    TMP_DIR=$(mktemp -d)
+    git clone --depth 1 -b "$BRANCH" "https://github.com/$REPO.git" "$TMP_DIR"
+    cd "$TMP_DIR"
+    sudo docker build -t "ghcr.io/$REPO:latest" .
+    rm -rf "$TMP_DIR"
+}
+
 sudo docker rm -f media-server 2>/dev/null || true
 sudo docker run -d \
     --name media-server \
     --restart unless-stopped \
     -p $PORT:8000 \
     -v "$MEDIA_DIR":/media \
-    "ghcr.io/$REPO:latest" 2>/dev/null || {
-    echo -e "${BLUE}>>> Building image locally (first time)...${NC}"
-    git clone --depth 1 -b "$BRANCH" "https://github.com/$REPO.git" /tmp/media-server
-    cd /tmp/media-server
-    sudo docker build -t "ghcr.io/$REPO:latest" .
-    sudo docker run -d \
-        --name media-server \
-        --restart unless-stopped \
-        -p $PORT:8000 \
-        -v "$MEDIA_DIR":/media \
-        "ghcr.io/$REPO:latest"
-    rm -rf /tmp/media-server
-}
+    "ghcr.io/$REPO:latest"
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
