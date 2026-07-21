@@ -31,6 +31,7 @@ fi
 mkdir -p "$MEDIA_DIR"
 
 echo -e "${BLUE}>>> Downloading...${NC}"
+mkdir -p /tmp/my_nas
 curl -sSL "https://github.com/$REPO/archive/$BRANCH.tar.gz" | tar -xz --strip=1 -C /tmp/my_nas
 cd /tmp/my_nas
 
