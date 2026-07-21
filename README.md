@@ -50,6 +50,18 @@ docker run -d --name media-server --restart unless-stopped \
   ghcr.io/lqhunter/my_nas:latest
 ```
 
+> 容器只能访问通过 `-v` 挂载的目录。如果需要读取其他路径（如 `/mnt/usb`），额外挂载即可：
+>
+> ```bash
+> -v /mnt/usb:/mnt/usb
+> ```
+>
+> 查看当前容器的挂载情况：
+>
+> ```bash
+> docker inspect media-server --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}'
+> ```
+
 ## 开发
 
 ```bash
