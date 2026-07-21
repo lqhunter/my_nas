@@ -40,12 +40,6 @@ if [ -z "$DOCKER" ]; then
     fi
 fi
 
-# Check compose plugin
-if ! $DOCKER compose version &>/dev/null && ! command -v docker-compose &>/dev/null; then
-    echo -e "${BLUE}>>> Installing Docker Compose...${NC}"
-    apt-get install -y -qq docker-compose-plugin 2>/dev/null || true
-fi
-
 mkdir -p "$MEDIA_DIR"
 
 # Download if needed
@@ -57,14 +51,27 @@ fi
 echo -e "${BLUE}>>> Starting Media Server on port $PORT...${NC}"
 echo -e "${BLUE}>>> Media directory: $MEDIA_DIR${NC}"
 
+# Resolve compose command
+COMPOSE=""
 if $DOCKER compose version &>/dev/null; then
-    MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" $DOCKER compose -p media-server up -d --build
+    COMPOSE="$DOCKER compose"
 elif command -v docker-compose &>/dev/null; then
-    MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" docker-compose -p media-server up -d --build
+    COMPOSE="docker-compose"
 else
-    echo -e "${RED}>>> Docker Compose not available, install manually${NC}"
+    echo -e "${BLUE}>>> Installing Docker Compose plugin...${NC}"
+    apt-get install -y -qq docker-compose-v2 2>/dev/null && COMPOSE="$DOCKER compose" || true
+    if [ -z "$COMPOSE" ]; then
+        echo -e "${BLUE}>>> Downloading docker-compose binary...${NC}"
+        curl -sSL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && COMPOSE="docker-compose"
+    fi
+fi
+
+if [ -z "$COMPOSE" ]; then
+    echo -e "${RED}>>> Docker Compose unavailable. Run manually: apt install docker-compose-plugin${NC}"
     exit 1
 fi
+
+MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" $COMPOSE -p media-server up -d --build
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
