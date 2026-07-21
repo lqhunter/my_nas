@@ -348,9 +348,9 @@ async def stream_video(path: str = "", request: Request = None):
                     remaining -= len(data)
                     yield data
 
-        return Response(
+        return StreamingResponse(
+            stream_range(),
             status_code=206,
-            content=stream_range(),
             media_type=mime_type,
             headers={
                 "Content-Range": f"bytes {start}-{end}/{file_size}",
@@ -368,9 +368,9 @@ async def stream_video(path: str = "", request: Request = None):
                     break
                 yield data
 
-    return Response(
+    return StreamingResponse(
+        stream_full(),
         status_code=200,
-        content=stream_full(),
         media_type=mime_type,
         headers={
             "Content-Length": str(file_size),
@@ -422,9 +422,9 @@ async def stream_audio(path: str = "", request: Request = None):
                     remaining -= len(data)
                     yield data
 
-        return Response(
+        return StreamingResponse(
+            stream_range(),
             status_code=206,
-            content=stream_range(),
             media_type=mime_type,
             headers={
                 "Content-Range": f"bytes {start}-{end}/{file_size}",
@@ -442,9 +442,9 @@ async def stream_audio(path: str = "", request: Request = None):
                     break
                 yield data
 
-    return Response(
+    return StreamingResponse(
+        stream_full(),
         status_code=200,
-        content=stream_full(),
         media_type=mime_type,
         headers={
             "Content-Length": str(file_size),
