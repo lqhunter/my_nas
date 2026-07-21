@@ -66,7 +66,11 @@ mimetypes.init()
 def safe_path(user_path: str) -> Path:
     user_path = user_path.lstrip("/")
     root = Path(get_media_root())
-    resolved = (root / user_path).resolve()
+    try:
+        resolved = (root / user_path).resolve()
+    except Exception as e:
+        log(f"SAFEPATH ERROR root={root} path={user_path} {e}")
+        raise HTTPException(500, f"Path resolution error: {e}")
     if not str(resolved).startswith(os.path.realpath(root)):
         raise HTTPException(403, "Access denied")
     return resolved
@@ -303,7 +307,11 @@ CHUNK_SIZE = 1024 * 1024
 
 @app.get("/api/media/video")
 async def stream_video(path: str = "", request: Request = None):
-    target = safe_path(path)
+    try:
+        target = safe_path(path)
+    except Exception as e:
+        log(f"PLAY ERROR path={path} {e}")
+        raise HTTPException(500, str(e))
     if not target.exists() or not target.is_file():
         raise HTTPException(404, "File not found")
 
@@ -324,7 +332,7 @@ async def stream_video(path: str = "", request: Request = None):
             end = file_size - 1
 
         if start >= file_size:
-            return HTTPException(416, "Range not satisfiable")
+            raise HTTPException(416, "Range not satisfiable")
 
         content_length = end - start + 1
 
@@ -373,7 +381,11 @@ async def stream_video(path: str = "", request: Request = None):
 
 @app.get("/api/media/audio")
 async def stream_audio(path: str = "", request: Request = None):
-    target = safe_path(path)
+    try:
+        target = safe_path(path)
+    except Exception as e:
+        log(f"AUDIO ERROR path={path} {e}")
+        raise HTTPException(500, str(e))
     if not target.exists() or not target.is_file():
         raise HTTPException(404, "File not found")
 
@@ -394,7 +406,7 @@ async def stream_audio(path: str = "", request: Request = None):
             end = file_size - 1
 
         if start >= file_size:
-            return HTTPException(416, "Range not satisfiable")
+            raise HTTPException(416, "Range not satisfiable")
 
         content_length = end - start + 1
 
@@ -479,9 +491,8 @@ async def update_settings(data: dict):
     log(f"SETTINGS save {data}")
     return {"status": "ok", "settings": current}
 
-# --- Serve Files ---
+# --- Serve Frontend ---
 
-app.mount("/files", StaticFiles(directory=MEDIA_ROOT), name="media")
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 if __name__ == "__main__":

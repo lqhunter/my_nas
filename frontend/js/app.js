@@ -81,7 +81,7 @@ function getThumbnailUrl(path) {
 }
 
 function getMediaUrl(type, path) {
-  return `${API_BASE}/files/${path.split("/").map(encodeURIComponent).join("/")}`;
+  return `${API_BASE}/api/media/${type}?path=${encodeURIComponent(path)}`;
 }
 
 function getDownloadUrl(path) {
