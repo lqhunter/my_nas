@@ -2,7 +2,7 @@
 set -e
 
 REPO="lqhunter/my_nas"
-MEDIA_DIR="${MEDIA_DIR:-/mnt/usb}"
+MEDIA_DIR="${MEDIA_DIR:-/mnt/nas}"
 PORT="${PORT:-8080}"
 
 GREEN='\033[0;32m'; BLUE='\033[0;34m'; RED='\033[0;31m'; NC='\033[0m'
