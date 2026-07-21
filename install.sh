@@ -6,13 +6,19 @@ BRANCH="${BRANCH:-master}"
 MEDIA_DIR="${MEDIA_DIR:-$HOME/media}"
 PORT="${PORT:-8080}"
 
-GREEN='\033[0;32m'; BLUE='\033[0;34m'; NC='\033[0m'
+GREEN='\033[0;32m'; BLUE='\033[0;34m'; RED='\033[0;31m'; NC='\033[0m'
 
 echo -e "${BLUE}>>> Media Server Installer${NC}"
 
 if ! command -v docker &>/dev/null; then
     echo -e "${BLUE}>>> Installing Docker...${NC}"
-    curl -fsSL https://get.docker.com | sh
+    apt-get update 2>/dev/null || true
+    apt-get install -y docker.io docker-compose-v2 2>/dev/null || {
+        curl -fsSL https://get.docker.com | sh 2>/dev/null || {
+            echo -e "${RED}>>> Failed to install Docker. Please install it manually.${NC}"
+            exit 1
+        }
+    }
 fi
 
 mkdir -p "$MEDIA_DIR"
