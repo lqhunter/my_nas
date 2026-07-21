@@ -16,6 +16,18 @@ if [ -z "$DOCKER" ]; then
     exit 1
 fi
 
+# Fix broken Docker registry mirror (common issue in China)
+if docker info 2>/dev/null | grep -q "mirror.baidubce.com"; then
+    echo -e "${BLUE}>>> Fixing Docker registry mirror...${NC}"
+    cat > /etc/docker/daemon.json <<'EOF'
+{
+  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+}
+EOF
+    systemctl restart docker 2>/dev/null || service docker restart 2>/dev/null || echo -e "${BLUE}>>> Restart Docker manually then re-run this script${NC}"
+    sleep 3
+fi
+
 mkdir -p "$MEDIA_DIR"
 
 if [ ! -f "docker-compose.yml" ]; then
