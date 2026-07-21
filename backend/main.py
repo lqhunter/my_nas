@@ -14,6 +14,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
+def log(msg):
+    print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
+
 app = FastAPI(title="Media Server")
 
 app.add_middleware(
@@ -98,6 +101,7 @@ def format_mtime(timestamp: float) -> str:
 
 @app.get("/api/files")
 async def list_files(path: str = "", sort: str = "name", order: str = "asc"):
+    log(f"BROWSE dir={path} sort={sort} order={order}")
     target = safe_path(path)
     if not target.exists():
         raise HTTPException(404, "Path not found")
@@ -251,11 +255,14 @@ async def delete_file(path: str = ""):
 async def get_thumbnail(path: str = "", size: int = 300):
     target = safe_path(path)
     if not target.exists() or not target.is_file():
+        log(f"THUMB fail path={path} — not found")
         raise HTTPException(404, "File not found")
 
+    log(f"THUMB path={path} size={size}")
     cache_key = f"{target.name}_{size}_{target.stat().st_mtime}"
     cache_path = Path(THUMBNAIL_DIR) / f"{hash(cache_key)}.jpg"
     if cache_path.exists():
+        log(f"THUMB cache-hit path={path}")
         return FileResponse(str(cache_path), media_type="image/jpeg")
 
     ext = target.name.lower().rsplit(".", 1)[-1] if "." in target.name else ""
@@ -301,6 +308,7 @@ async def stream_video(path: str = "", request: Request = None):
         raise HTTPException(404, "File not found")
 
     file_size = os.path.getsize(target)
+    log(f"PLAY video path={path} size={file_size}")
     mime_type, _ = mimetypes.guess_type(str(target))
     if not mime_type:
         mime_type = "application/octet-stream"
@@ -370,6 +378,7 @@ async def stream_audio(path: str = "", request: Request = None):
         raise HTTPException(404, "File not found")
 
     file_size = os.path.getsize(target)
+    log(f"PLAY audio path={path} size={file_size}")
     mime_type, _ = mimetypes.guess_type(str(target))
     if not mime_type:
         mime_type = "audio/mpeg"
@@ -438,6 +447,7 @@ async def download_file(path: str = ""):
     target = safe_path(path)
     if not target.exists() or not target.is_file():
         raise HTTPException(404, "File not found")
+    log(f"DOWNLOAD path={path}")
     mime_type, _ = mimetypes.guess_type(str(target))
     return FileResponse(
         str(target),
@@ -455,6 +465,7 @@ async def get_settings():
     settings = load_settings()
     settings["_mediaRootEnv"] = MEDIA_ROOT
     settings["_portEnv"] = int(os.environ.get("PORT", "8000"))
+    log("SETTINGS load")
     return settings
 
 @app.put("/api/settings")
@@ -465,6 +476,7 @@ async def update_settings(data: dict):
         if k in allowed:
             current[k] = v
     save_settings(current)
+    log(f"SETTINGS save {data}")
     return {"status": "ok", "settings": current}
 
 # --- Serve Frontend ---
