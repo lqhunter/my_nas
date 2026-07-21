@@ -10,6 +10,19 @@
 curl -fsSL https://get.docker.com | sh
 ```
 
+国内服务器需要配置 Docker 镜像源加速，否则拉取镜像会失败：
+
+```bash
+cat > /etc/docker/daemon.json <<'EOF'
+{
+  "registry-mirrors": ["https://docker.1panel.live"]
+}
+EOF
+systemctl restart docker
+```
+
+如果 `1panel.live` 不可用，替换为 `docker.1ms.run`。
+
 ## 一键安装
 
 ```bash
