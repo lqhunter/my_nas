@@ -145,7 +145,7 @@ function renderGrid(items) {
       const thumbHtml = isDir
         ? `<div class="file-icon">${FILE_ICONS[ft] || FILE_ICONS.unknown}</div>`
         : ft === "video"
-        ? `<img src="${getThumbnailUrl(item.path)}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'file-icon\\'>${FILE_ICONS.video}</div>'"/><div class="play-badge"><svg viewBox="0 0 24 24" width="48" height="48" fill="#fff" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`
+        ? `<div class="file-icon">${FILE_ICONS.video}</div><div class="play-badge"><svg viewBox="0 0 24 24" width="48" height="48" fill="#fff" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`
         : ft === "image"
         ? `<img src="${getThumbnailUrl(item.path)}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'file-icon\\'>${FILE_ICONS.image}</div>'"/>`
         : ft === "audio"
