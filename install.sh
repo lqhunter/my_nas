@@ -20,6 +20,7 @@ if ! command -v docker &>/dev/null; then
             exit 1
         }
     }
+    hash -r
 fi
 
 mkdir -p "$MEDIA_DIR"
