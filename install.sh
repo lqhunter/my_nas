@@ -17,14 +17,20 @@ if [ -z "$DOCKER" ]; then
 fi
 
 # Fix broken Docker registry mirror (common issue in China)
-if docker info 2>/dev/null | grep -q "mirror.baidubce.com"; then
-    echo -e "${BLUE}>>> Fixing Docker registry mirror...${NC}"
+CURRENT_MIRROR=$(docker info 2>/dev/null | grep -i "registry-mirror" -A1 | tail -1 | tr -d '[:space:]')
+if echo "$CURRENT_MIRROR" | grep -q "baidubce.com"; then
+    echo -e "${BLUE}>>> Fixing Docker mirror...${NC}"
+    mkdir -p /etc/docker
     cat > /etc/docker/daemon.json <<'EOF'
 {
-  "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+  "registry-mirrors": ["https://docker.nju.edu.cn"]
 }
 EOF
-    systemctl restart docker 2>/dev/null || service docker restart 2>/dev/null || echo -e "${BLUE}>>> Restart Docker manually then re-run this script${NC}"
+    systemctl daemon-reload 2>/dev/null || true
+    systemctl restart docker 2>/dev/null || service docker restart 2>/dev/null || {
+        echo -e "${RED}>>> Restart Docker failed, do it manually: systemctl restart docker${NC}"
+        exit 1
+    }
     sleep 3
 fi
 
