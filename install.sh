@@ -38,7 +38,7 @@ mkdir -p "$MEDIA_DIR"
 
 if [ ! -f "docker-compose.yml" ]; then
     echo -e "${BLUE}>>> Downloading Media Server...${NC}"
-    curl -sSL "https://github.com/$REPO/archive/$BRANCH.tar.gz" | tar -xz --strip=1
+    curl -sSL --connect-timeout 10 "https://github.com/$REPO/archive/$BRANCH.tar.gz" | tar -xz --strip=1
 fi
 
 echo -e "${BLUE}>>> Starting on port $PORT, media: $MEDIA_DIR${NC}"
