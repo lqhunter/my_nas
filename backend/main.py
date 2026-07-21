@@ -479,8 +479,9 @@ async def update_settings(data: dict):
     log(f"SETTINGS save {data}")
     return {"status": "ok", "settings": current}
 
-# --- Serve Frontend ---
+# --- Serve Files ---
 
+app.mount("/files", StaticFiles(directory=MEDIA_ROOT), name="media")
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 if __name__ == "__main__":

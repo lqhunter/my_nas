@@ -81,7 +81,7 @@ function getThumbnailUrl(path) {
 }
 
 function getMediaUrl(type, path) {
-  return `${API_BASE}/api/media/${type}?path=${encodeURIComponent(path)}`;
+  return `${API_BASE}/files/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 
 function getDownloadUrl(path) {
@@ -145,7 +145,7 @@ function renderGrid(items) {
       const thumbHtml = isDir
         ? `<div class="file-icon">${FILE_ICONS[ft] || FILE_ICONS.unknown}</div>`
         : ft === "video"
-        ? `<div class="file-icon">${FILE_ICONS.video}</div><div class="play-badge"><svg viewBox="0 0 24 24" width="48" height="48" fill="#fff"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>`
+        ? `<div class="file-icon">${FILE_ICONS.video}</div>`
         : ft === "image"
         ? `<img src="${getThumbnailUrl(item.path)}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'file-icon\\'>${FILE_ICONS.image}</div>'"/>`
         : ft === "audio"
