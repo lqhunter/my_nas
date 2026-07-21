@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Server</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        <span>MediaServer</span>
+      </div>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-section-title">Browse</div>
+      <div class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item active" data-path="">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Quick Access</div>
+      <div class="sidebar-nav" id="quick-access">
+        <div class="nav-item" data-path="Videos">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          <span>Videos</span>
+        </div>
+        <div class="nav-item" data-path="Music">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span>Music</span>
+        </div>
+        <div class="nav-item" data-path="Photos">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Photos</span>
+        </div>
+        <div class="nav-item" data-path="Documents">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Documents</span>
+        </div>
+      </div>
+      <div class="sidebar-section-title">Actions</div>
+      <div class="sidebar-nav">
+        <div class="nav-item" id="btn-create-folder">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span>New Folder</span>
+        </div>
+        <div class="nav-item" id="btn-upload">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Upload</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="storage-info" id="storage-info">
+        <div class="storage-label">Loading...</div>
+        <div class="storage-bar"><div class="storage-used" style="width:0%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main-content">
+    <header id="topbar">
+      <div class="topbar-left">
+        <button id="sidebar-toggle" class="icon-btn">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <nav id="breadcrumb"></nav>
+      </div>
+      <div class="topbar-right">
+        <div class="view-toggle">
+          <button class="icon-btn active" data-view="grid" title="Grid view">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="icon-btn" data-view="list" title="List view">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+        </div>
+        <select id="sort-select" class="sort-select">
+          <option value="name">Name</option>
+          <option value="mtime">Date Modified</option>
+          <option value="size">Size</option>
+          <option value="type">Type</option>
+        </select>
+        <button class="icon-btn" id="btn-sort-order" title="Toggle sort order">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="content-area">
+      <div id="loading-spinner" class="loading-spinner hidden">
+        <div class="spinner"></div>
+      </div>
+      <div id="empty-state" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <h3>This folder is empty</h3>
+        <p>Upload files or create a new folder to get started</p>
+        <div class="empty-actions">
+          <button class="btn btn-primary" id="btn-empty-upload">Upload Files</button>
+          <button class="btn btn-secondary" id="btn-empty-folder">New Folder</button>
+        </div>
+      </div>
+      <div id="file-grid" class="file-grid"></div>
+      <div id="file-list" class="file-list hidden">
+        <div class="list-header">
+          <span class="list-col-name">Name</span>
+          <span class="list-col-size">Size</span>
+          <span class="list-col-date">Date</span>
+          <span class="list-col-type">Type</span>
+          <span class="list-col-actions"></span>
+        </div>
+        <div id="list-items"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="player-overlay" class="overlay hidden">
+  <div class="player-container">
+    <div class="player-header">
+      <span class="player-title" id="player-title">Now Playing</span>
+      <button class="icon-btn" id="player-close">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="player-content">
+      <video id="video-player" controls autoplay playsinline></video>
+      <div id="audio-player-wrapper" class="hidden">
+        <div class="audio-visualizer">
+          <svg viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <div class="audio-info">
+          <span class="audio-name" id="audio-name"></span>
+        </div>
+        <audio id="audio-player" controls autoplay></audio>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="drop-overlay" class="hidden">
+  <div class="drop-content">
+    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <h2>Drop files to upload</h2>
+  </div>
+</div>
+
+<div id="context-menu" class="context-menu hidden">
+  <div class="context-item" data-action="play"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play</div>
+  <div class="context-item" data-action="download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download</div>
+  <div class="context-divider"></div>
+  <div class="context-item" data-action="rename"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Rename</div>
+  <div class="context-item danger" data-action="delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

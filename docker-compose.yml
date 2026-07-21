@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  media-server:
+    build: .
+    container_name: media-server
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./media:/media
+      - thumbnails:/tmp/thumbnails
+    environment:
+      - MEDIA_ROOT=/media
+      - THUMBNAIL_DIR=/tmp/thumbnails
+    restart: unless-stopped
+
+volumes:
+  thumbnails:
