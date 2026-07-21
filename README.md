@@ -44,9 +44,10 @@ bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/instal
 ## 手动运行
 
 ```bash
-git clone https://github.com/lqhunter/my_nas.git
-cd my_nas
-MEDIA_ROOT=/path/to/media docker compose up -d
+docker run -d --name media-server --restart unless-stopped \
+  -p 8080:8000 \
+  -v /path/to/media:/media \
+  ghcr.io/lqhunter/my_nas:latest
 ```
 
 ## 开发
