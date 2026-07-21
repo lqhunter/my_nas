@@ -13,16 +13,7 @@ curl -fsSL https://get.docker.com | sh
 ## 一键安装
 
 ```bash
-bash <(curl -sSL --connect-timeout 10 https://raw.githubusercontent.com/lqhunter/my_nas/master/install.sh)
-```
-
-如果网络不通（raw.githubusercontent.com 被墙），改用：
-
-```bash
-cd ~
-curl -sSL https://github.com/lqhunter/my_nas/archive/master.tar.gz | tar -xz
-cd my_nas-master
-bash install.sh
+bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/install.sh)
 ```
 
 默认挂载 `~/media` 目录，访问 `http://设备IP:8080`。
