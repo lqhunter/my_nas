@@ -48,6 +48,16 @@ async function api(method, endpoint, body, isFormData) {
   return res;
 }
 
+function applyView() {
+  const grid = document.getElementById("file-grid");
+  const list = document.getElementById("file-list");
+  if (currentView === "grid") { grid.classList.remove("hidden"); list.classList.add("hidden"); }
+  else { grid.classList.add("hidden"); list.classList.remove("hidden"); }
+  document.querySelectorAll(".view-toggle .icon-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.view === currentView)
+  );
+}
+
 async function loadDirectory(path) {
   showLoading(true);
   currentPath = path;
@@ -56,6 +66,7 @@ async function loadDirectory(path) {
     const data = await res.json();
     renderBreadcrumbs(data.breadcrumbs || []);
     renderFiles(data);
+    applyView();
     updateSidebarActive(path);
     showLoading(false);
   } catch (e) {
@@ -630,13 +641,8 @@ function init() {
 
   document.querySelectorAll(".view-toggle .icon-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".view-toggle .icon-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
       currentView = btn.dataset.view;
-      const grid = document.getElementById("file-grid");
-      const list = document.getElementById("file-list");
-      if (currentView === "grid") { grid.classList.remove("hidden"); list.classList.add("hidden"); }
-      else { grid.classList.add("hidden"); list.classList.remove("hidden"); }
+      applyView();
     });
   });
 
