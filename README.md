@@ -5,7 +5,7 @@
 ## 一行安装
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/main/install.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/install.sh)
 ```
 
 默认挂载 `~/media` 目录，访问 `http://设备IP:8080`。

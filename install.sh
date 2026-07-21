@@ -2,7 +2,7 @@
 set -e
 
 REPO="${REPO:-anomalyco/media-server}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-master}"
 MEDIA_DIR="${MEDIA_DIR:-$HOME/media}"
 PORT="${PORT:-8080}"
 
