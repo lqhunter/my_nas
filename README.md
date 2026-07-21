@@ -2,7 +2,15 @@
 
 基于 FastAPI 的媒体服务器，支持在浏览器中管理文件、在线观看视频和听音乐。
 
-## 一行安装
+## 前置要求
+
+安装 Docker：
+
+```bash
+curl -fsSL https://get.docker.com | sh
+```
+
+## 一键安装
 
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/install.sh)
@@ -20,15 +28,12 @@ bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/instal
 - 自动生成视频缩略图（需 ffmpeg）
 - 深色主题，响应式适配
 
-## 手动运行（Docker）
+## 手动运行
 
 ```bash
-docker compose up -d
-# 或
-docker run -d --name media-server --restart unless-stopped \
-  -p 8080:8000 \
-  -v /path/to/media:/media \
-  ghcr.io/lqhunter/my_nas:latest
+git clone https://github.com/lqhunter/my_nas.git
+cd my_nas
+MEDIA_ROOT=/path/to/media docker compose up -d
 ```
 
 ## 开发
