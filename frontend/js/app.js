@@ -574,11 +574,11 @@ async function loadSettings() {
     document.getElementById("setting-default-view").value = s.defaultView || "grid";
     document.getElementById("setting-default-sort").value = s.defaultSort || "name";
     document.getElementById("setting-thumbnail-size").value = s.thumbnailSize || "300";
+    const rt = document.getElementById("runtime-info");
+    if (rt) rt.textContent = `Runtime: ${s._mediaRootEnv || "/media"} : ${s._portEnv || "8080"}`;
     currentView = s.defaultView || "grid";
     currentSort = s.defaultSort || "name";
-    document.querySelectorAll(".view-toggle .icon-btn").forEach(b =>
-      b.classList.toggle("active", b.dataset.view === currentView)
-    );
+    applyView();
     document.getElementById("sort-select").value = currentSort;
     return s;
   } catch (e) {

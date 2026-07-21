@@ -448,8 +448,8 @@ async def download_file(path: str = ""):
 @app.get("/api/settings")
 async def get_settings():
     settings = load_settings()
-    settings["mediaRoot"] = MEDIA_ROOT
-    settings["port"] = int(os.environ.get("PORT", "8000"))
+    settings["_mediaRootEnv"] = MEDIA_ROOT
+    settings["_portEnv"] = int(os.environ.get("PORT", "8000"))
     return settings
 
 @app.put("/api/settings")
