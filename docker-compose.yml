@@ -1,13 +1,11 @@
-version: "3.8"
-
 services:
   media-server:
     build: .
     container_name: media-server
     ports:
-      - "8080:8000"
+      - "${PORT:-8080}:8000"
     volumes:
-      - ./media:/media
+      - "${MEDIA_ROOT:-./media}:/media"
       - thumbnails:/tmp/thumbnails
     environment:
       - MEDIA_ROOT=/media
