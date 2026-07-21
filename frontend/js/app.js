@@ -5,6 +5,7 @@ let currentSort = "name";
 let currentOrder = "asc";
 let selectedItems = new Set();
 let contextTarget = null;
+let playerInstance = null;
 
 const FILE_ICONS = {
   folder: `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
@@ -144,11 +145,11 @@ function renderGrid(items) {
       const thumbHtml = isDir
         ? `<div class="file-icon">${FILE_ICONS[ft] || FILE_ICONS.unknown}</div>`
         : ft === "video"
-        ? `<div class="file-icon">${FILE_ICONS.video}</div><div class="play-badge"><svg viewBox="0 0 24 24" width="48" height="48" fill="#fff" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`
-        : ft === "audio"
-        ? `<div class="file-icon">${FILE_ICONS.audio}</div>`
+        ? `<img src="${getThumbnailUrl(item.path)}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'file-icon\\'>${FILE_ICONS.video}</div>'"/><div class="play-badge"><svg viewBox="0 0 24 24" width="48" height="48" fill="#fff" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>`
         : ft === "image"
         ? `<img src="${getThumbnailUrl(item.path)}" alt="${item.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'file-icon\\'>${FILE_ICONS.image}</div>'"/>`
+        : ft === "audio"
+        ? `<div class="file-icon">${FILE_ICONS.audio}</div>`
         : `<div class="file-icon">${FILE_ICONS[ft] || FILE_ICONS.unknown}</div>`;
 
       return `<div class="file-card file-type-${ft}" data-path="${item.path}" data-type="${ft}" data-is-dir="${isDir}">
@@ -248,44 +249,44 @@ function openFile(path) {
 }
 
 function playVideo(path) {
+  if (playerInstance) playerInstance.destroy();
   const overlay = document.getElementById("player-overlay");
-  const video = document.getElementById("video-player");
+  const videoWrap = document.getElementById("video-player-wrapper");
   const audioWrap = document.getElementById("audio-player-wrapper");
+  const video = document.getElementById("video-player");
   const title = document.getElementById("player-title");
 
   audioWrap.classList.add("hidden");
-  video.classList.remove("hidden");
+  videoWrap.classList.remove("hidden");
   overlay.classList.remove("hidden");
   title.textContent = path.split("/").pop();
   video.src = getMediaUrl("video", path);
-  video.load();
-  video.play().catch(() => {});
+  playerInstance = new Plyr(video, { autoplay: true });
 }
 
 function playAudio(path) {
+  if (playerInstance) playerInstance.destroy();
   const overlay = document.getElementById("player-overlay");
-  const video = document.getElementById("video-player");
+  const videoWrap = document.getElementById("video-player-wrapper");
   const audioWrap = document.getElementById("audio-player-wrapper");
   const audio = document.getElementById("audio-player");
   const title = document.getElementById("player-title");
   const audioName = document.getElementById("audio-name");
 
-  video.classList.add("hidden");
+  videoWrap.classList.add("hidden");
   audioWrap.classList.remove("hidden");
   overlay.classList.remove("hidden");
   title.textContent = "Now Playing";
   audioName.textContent = path.split("/").pop();
   audio.src = getMediaUrl("audio", path);
-  audio.load();
-  audio.play().catch(() => {});
+  playerInstance = new Plyr(audio, { autoplay: true });
 }
 
 function closePlayer() {
+  if (playerInstance) { playerInstance.destroy(); playerInstance = null; }
   const overlay = document.getElementById("player-overlay");
   const video = document.getElementById("video-player");
   const audio = document.getElementById("audio-player");
-  video.pause();
-  audio.pause();
   video.src = "";
   audio.src = "";
   overlay.classList.add("hidden");
