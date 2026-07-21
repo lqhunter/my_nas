@@ -5,7 +5,7 @@ let currentSort = "name";
 let currentOrder = "asc";
 let selectedItems = new Set();
 let contextTarget = null;
-let playerInstance = null;
+let dplayer = null;
 
 const FILE_ICONS = {
   folder: `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
@@ -249,47 +249,39 @@ function openFile(path) {
 }
 
 function playVideo(path) {
-  if (playerInstance) playerInstance.destroy();
+  if (dplayer) { dplayer.destroy(); dplayer = null; }
   const overlay = document.getElementById("player-overlay");
-  const videoWrap = document.getElementById("video-player-wrapper");
-  const audioWrap = document.getElementById("audio-player-wrapper");
-  const video = document.getElementById("video-player");
   const title = document.getElementById("player-title");
+  const container = document.getElementById("dplayer-container");
 
-  audioWrap.classList.add("hidden");
-  videoWrap.classList.remove("hidden");
   overlay.classList.remove("hidden");
   title.textContent = path.split("/").pop();
-  video.src = getMediaUrl("video", path);
-  playerInstance = new Plyr(video, { autoplay: true });
+  dplayer = new DPlayer({
+    container: container,
+    video: { url: getMediaUrl("video", path) },
+    autoplay: true,
+    screenshot: false,
+  });
 }
 
 function playAudio(path) {
-  if (playerInstance) playerInstance.destroy();
+  if (dplayer) { dplayer.destroy(); dplayer = null; }
   const overlay = document.getElementById("player-overlay");
-  const videoWrap = document.getElementById("video-player-wrapper");
-  const audioWrap = document.getElementById("audio-player-wrapper");
-  const audio = document.getElementById("audio-player");
   const title = document.getElementById("player-title");
-  const audioName = document.getElementById("audio-name");
+  const container = document.getElementById("dplayer-container");
 
-  videoWrap.classList.add("hidden");
-  audioWrap.classList.remove("hidden");
   overlay.classList.remove("hidden");
-  title.textContent = "Now Playing";
-  audioName.textContent = path.split("/").pop();
-  audio.src = getMediaUrl("audio", path);
-  playerInstance = new Plyr(audio, { autoplay: true });
+  title.textContent = path.split("/").pop();
+  dplayer = new DPlayer({
+    container: container,
+    audio: { url: getMediaUrl("audio", path), name: path.split("/").pop() },
+    autoplay: true,
+  });
 }
 
 function closePlayer() {
-  if (playerInstance) { playerInstance.destroy(); playerInstance = null; }
-  const overlay = document.getElementById("player-overlay");
-  const video = document.getElementById("video-player");
-  const audio = document.getElementById("audio-player");
-  video.src = "";
-  audio.src = "";
-  overlay.classList.add("hidden");
+  if (dplayer) { dplayer.destroy(); dplayer = null; }
+  document.getElementById("player-overlay").classList.add("hidden");
 }
 
 // --- File Operations ---
