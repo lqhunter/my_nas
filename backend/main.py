@@ -54,7 +54,10 @@ def save_settings(settings):
         json.dump(settings, f, indent=2)
 
 def get_media_root():
-    return load_settings().get("mediaRoot", MEDIA_ROOT)
+    saved = load_settings().get("mediaRoot", MEDIA_ROOT)
+    if Path(saved).exists():
+        return saved
+    return MEDIA_ROOT
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
@@ -464,6 +467,12 @@ async def update_settings(data: dict):
     for k, v in data.items():
         if k in allowed:
             current[k] = v
+    if "mediaRoot" in data:
+        test_path = Path(data["mediaRoot"])
+        if not test_path.exists():
+            raise HTTPException(400, f"Path does not exist inside container: {data['mediaRoot']}")
+        if not test_path.is_dir():
+            raise HTTPException(400, f"Not a directory: {data['mediaRoot']}")
     save_settings(current)
     return {"status": "ok", "settings": current}
 
