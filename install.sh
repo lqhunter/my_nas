@@ -30,15 +30,16 @@ fi
 
 mkdir -p "$MEDIA_DIR"
 
-echo -e "${BLUE}>>> Downloading...${NC}"
-mkdir -p /tmp/my_nas
-curl -sSL "https://github.com/$REPO/archive/$BRANCH.tar.gz" | tar -xz --strip=1 -C /tmp/my_nas
-cd /tmp/my_nas
+# Use current directory if already cloned, otherwise download here
+if [ ! -f "docker-compose.yml" ]; then
+    echo -e "${BLUE}>>> Downloading Media Server...${NC}"
+    curl -sSL "https://github.com/$REPO/archive/$BRANCH.tar.gz" | tar -xz --strip=1
+fi
 
-echo -e "${BLUE}>>> Starting on port $PORT, media: $MEDIA_DIR${NC}"
+echo -e "${BLUE}>>> Starting Media Server on port $PORT...${NC}"
+echo -e "${BLUE}>>> Media directory: $MEDIA_DIR${NC}"
+
 MEDIA_ROOT="$MEDIA_DIR" PORT="$PORT" docker compose -p media-server up -d --build
-
-cd / && rm -rf /tmp/my_nas
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
