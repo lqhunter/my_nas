@@ -553,15 +553,71 @@ async function loadStorageInfo() {
   } catch (e) {}
 }
 
+// --- Settings ---
+async function loadSettings() {
+  try {
+    const res = await api("GET", "/api/settings");
+    const s = await res.json();
+    document.getElementById("setting-media-root").value = s.mediaRoot || "/media";
+    document.getElementById("setting-port").value = s.port || "8080";
+    document.getElementById("setting-default-view").value = s.defaultView || "grid";
+    document.getElementById("setting-default-sort").value = s.defaultSort || "name";
+    document.getElementById("setting-thumbnail-size").value = s.thumbnailSize || "300";
+    currentView = s.defaultView || "grid";
+    currentSort = s.defaultSort || "name";
+    document.querySelectorAll(".view-toggle .icon-btn").forEach(b =>
+      b.classList.toggle("active", b.dataset.view === currentView)
+    );
+    document.getElementById("sort-select").value = currentSort;
+    return s;
+  } catch (e) {
+    return {};
+  }
+}
+
+function openSettings() {
+  document.getElementById("settings-modal").classList.remove("hidden");
+  loadSettings();
+}
+
+function closeSettings() {
+  document.getElementById("settings-modal").classList.add("hidden");
+}
+
+async function saveSettings() {
+  const data = {
+    defaultView: document.getElementById("setting-default-view").value,
+    defaultSort: document.getElementById("setting-default-sort").value,
+    thumbnailSize: parseInt(document.getElementById("setting-thumbnail-size").value),
+  };
+  try {
+    await api("PUT", "/api/settings", data);
+    currentView = data.defaultView;
+    currentSort = data.defaultSort;
+    showToast("Settings saved", "success");
+    closeSettings();
+    loadDirectory(currentPath);
+  } catch (e) {
+    showToast(e.message, "error");
+  }
+}
+
 // --- Init ---
 function init() {
-  loadDirectory("");
+  loadSettings().then(() => loadDirectory(""));
 
   const upload = setupUpload();
   setupDragDrop();
 
   document.getElementById("btn-empty-folder").addEventListener("click", showNewFolderModal);
   document.getElementById("btn-create-folder").addEventListener("click", showNewFolderModal);
+  document.getElementById("btn-settings").addEventListener("click", openSettings);
+  document.getElementById("settings-close").addEventListener("click", closeSettings);
+  document.getElementById("settings-cancel").addEventListener("click", closeSettings);
+  document.getElementById("settings-save").addEventListener("click", saveSettings);
+  document.getElementById("settings-modal").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeSettings();
+  });
   document.getElementById("player-close").addEventListener("click", closePlayer);
   document.getElementById("player-overlay").addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closePlayer();

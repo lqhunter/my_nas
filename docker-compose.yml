@@ -7,6 +7,7 @@ services:
     volumes:
       - "${MEDIA_ROOT:-./media}:/media"
       - thumbnails:/tmp/thumbnails
+      - ./config:/app/config
     environment:
       - MEDIA_ROOT=/media
       - THUMBNAIL_DIR=/tmp/thumbnails

@@ -26,7 +26,32 @@ app.add_middleware(
 
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "/media")
 THUMBNAIL_DIR = os.environ.get("THUMBNAIL_DIR", "/tmp/thumbnails")
+CONFIG_DIR = os.environ.get("CONFIG_DIR", "/app/config")
+SETTINGS_FILE = os.path.join(CONFIG_DIR, "settings.json")
+
 os.makedirs(THUMBNAIL_DIR, exist_ok=True)
+os.makedirs(CONFIG_DIR, exist_ok=True)
+
+DEFAULT_SETTINGS = {
+    "mediaRoot": MEDIA_ROOT,
+    "port": 8000,
+    "defaultSort": "name",
+    "defaultView": "grid",
+    "thumbnailSize": 300,
+}
+
+def load_settings():
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r") as f:
+                return {**DEFAULT_SETTINGS, **json.load(f)}
+        except Exception:
+            pass
+    return dict(DEFAULT_SETTINGS)
+
+def save_settings(settings):
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(settings, f, indent=2)
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
@@ -417,6 +442,25 @@ async def download_file(path: str = ""):
             "Content-Disposition": f'attachment; filename="{target.name}"',
         },
     )
+
+# --- Settings ---
+
+@app.get("/api/settings")
+async def get_settings():
+    settings = load_settings()
+    settings["mediaRoot"] = MEDIA_ROOT
+    settings["port"] = int(os.environ.get("PORT", "8000"))
+    return settings
+
+@app.put("/api/settings")
+async def update_settings(data: dict):
+    allowed = {"defaultSort", "defaultView", "thumbnailSize"}
+    current = load_settings()
+    for k, v in data.items():
+        if k in allowed:
+            current[k] = v
+    save_settings(current)
+    return {"status": "ok", "settings": current}
 
 # --- Serve Frontend ---
 
