@@ -21,6 +21,14 @@ if ! command -v docker &>/dev/null; then
         }
     }
     hash -r
+    DOCKER=$(command -v docker || which docker || echo "/usr/bin/docker")
+    if [ ! -f "$DOCKER" ]; then
+        DOCKER=$(find /usr/bin /usr/local/bin -name docker -type f 2>/dev/null | head -1)
+    fi
+    if [ -f "$DOCKER" ]; then
+        ln -sf "$DOCKER" /usr/local/bin/docker 2>/dev/null || true
+        hash -r
+    fi
 fi
 
 if ! docker compose version &>/dev/null && ! command -v docker-compose &>/dev/null; then
