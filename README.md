@@ -29,7 +29,7 @@ systemctl restart docker
 bash <(curl -sSL https://raw.githubusercontent.com/lqhunter/my_nas/master/install.sh)
 ```
 
-默认挂载 `~/media` 目录，访问 `http://设备IP:8080`。
+默认挂载 `/mnt/usb` 目录，可通过 `MEDIA_DIR=/path/to/media` 环境变量覆盖。访问 `http://设备IP:8080`。
 
 ## 功能
 
@@ -50,10 +50,10 @@ docker run -d --name media-server --restart unless-stopped \
   ghcr.io/lqhunter/my_nas:latest
 ```
 
-> 容器只能访问通过 `-v` 挂载的目录。如果需要读取其他路径（如 `/mnt/usb`），额外挂载即可：
+> 容器只能访问通过 `-v` 挂载的目录。`install.sh` 默认挂载 `/mnt/usb`，可自定义：
 >
 > ```bash
-> -v /mnt/usb:/mnt/usb
+> MEDIA_DIR=/path/to/media bash <(curl -sSL ...)
 > ```
 >
 > 查看当前容器的挂载情况：
