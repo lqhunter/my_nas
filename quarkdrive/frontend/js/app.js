@@ -177,9 +177,9 @@ class QuarkDriveApp {
 
       data.list.forEach(item => {
         const div = document.createElement("div");
-        div.className = "file-item" + (item.file_type === 1 ? " folder" : "");
+        div.className = "file-item" + (item.file_type === 0 ? " folder" : "");
 
-        const isFolder = item.file_type === 1;
+        const isFolder = item.file_type === 0;
         const icon = isFolder ? "📁" : this.getFileIcon(item.file_name);
 
         div.innerHTML = `
@@ -256,33 +256,11 @@ class QuarkDriveApp {
   }
 
   goUp() {
-    if (this.currentFolder === "0") return;
-    this.loadFolderTree();
-  }
-
-  async loadFolderTree() {
-    try {
-      const resp = await fetch(`/api/files/tree?folder_id=0&max_depth=5`);
-      const data = await resp.json();
-      if (data && data.list) {
-        const findParent = (items, targetId, parentId) => {
-          for (const item of items) {
-            if (item.fid === targetId) return parentId;
-            if (item.children) {
-              const found = findParent(item.children, targetId, item.fid);
-              if (found) return found;
-            }
-          }
-          return null;
-        };
-        const parent = findParent(data.list, this.currentFolder, "0");
-        if (parent) {
-          this.currentFolder = parent;
-          this.currentPage = 1;
-          this.loadFiles();
-        }
-      }
-    } catch {}
+    if (this.currentFolder === "0" || this.breadcrumbs.length === 0) return;
+    const prev = this.breadcrumbs.pop();
+    this.currentFolder = prev.id;
+    this.currentPage = 1;
+    this.loadFiles();
   }
 
   changeSort(field) {
@@ -325,8 +303,8 @@ class QuarkDriveApp {
 
       data.list.forEach(item => {
         const div = document.createElement("div");
-        div.className = "file-item";
-        const isFolder = item.file_type === 1;
+        div.className = "file-item" + (item.file_type === 0 ? " folder" : "");
+        const isFolder = item.file_type === 0;
         const icon = isFolder ? "📁" : this.getFileIcon(item.file_name);
         div.innerHTML = `
           <span class="file-icon">${icon}</span>

@@ -129,7 +129,7 @@ class FileService:
             if not found:
                 raise Exception(f"路径不存在: {part}")
             if i == len(parts) - 1:
-                is_file = found.get('file_type') == 0
+                is_file = found.get('file_type') != 0
                 return found.get('fid', ''), "file" if is_file else "folder"
             parent_id = found.get('fid', '')
         return parent_id, "folder"
