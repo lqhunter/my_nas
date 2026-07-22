@@ -378,7 +378,6 @@ async def stream_video(path: str = "", request: Request = None):
         headers={
             "Content-Length": str(file_size),
             "Accept-Ranges": "bytes",
-            "Content-Disposition": f'inline; filename="{target.name}"',
         },
     )
 
@@ -468,9 +467,6 @@ async def download_file(path: str = ""):
         str(target),
         media_type=mime_type or "application/octet-stream",
         filename=target.name,
-        headers={
-            "Content-Disposition": f'attachment; filename="{target.name}"',
-        },
     )
 
 # --- Settings ---
