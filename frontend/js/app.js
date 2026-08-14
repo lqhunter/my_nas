@@ -6,6 +6,16 @@ let currentOrder = "asc";
 let selectedItems = new Set();
 let contextTarget = null;
 let dplayer = null;
+let playlist = [];
+let currentVideoIndex = -1;
+let currentVideoPath = "";
+
+const VIDEO_EXTS = ["mp4", "webm", "mkv", "avi", "mov", "wmv", "flv", "m4v"];
+
+function isVideoPath(path) {
+  const ext = path.split(".").pop().toLowerCase();
+  return VIDEO_EXTS.includes(ext);
+}
 
 const FILE_ICONS = {
   folder: `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`,
@@ -132,6 +142,11 @@ function renderFiles(data) {
   gridView.classList.remove("hidden");
   listView.classList.remove("hidden");
 
+  playlist = data.items
+    .filter((item) => !item.is_directory && isVideoPath(item.path))
+    .map((item) => item.path);
+  currentVideoIndex = -1;
+
   renderGrid(data.items);
   renderList(data.items);
 }
@@ -234,10 +249,9 @@ function renderList(items) {
 function openFile(path) {
   if (typeof path === "object") path = path.path;
   const ft = path.split(".").pop().toLowerCase();
-  const videoExts = ["mp4", "webm", "mkv", "avi", "mov", "wmv", "flv", "m4v"];
   const audioExts = ["mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"];
 
-  if (videoExts.includes(ft)) {
+  if (VIDEO_EXTS.includes(ft)) {
     playVideo(path);
   } else if (audioExts.includes(ft)) {
     playAudio(path);
@@ -255,7 +269,10 @@ function playVideo(path) {
   const title = document.getElementById("player-title");
   const container = document.getElementById("dplayer-container");
 
+  currentVideoIndex = playlist.indexOf(path);
+  currentVideoPath = path;
   overlay.classList.remove("hidden");
+  overlay.classList.add("player-overlay-fullscreen");
   title.textContent = path.split("/").pop();
   dplayer = new DPlayer({
     container: container,
@@ -265,6 +282,9 @@ function playVideo(path) {
   });
   dplayer.on("error", () => console.error(`[DPlayer] video error`));
   dplayer.on("play", () => console.log(`[DPlayer] playing`));
+  if (overlay.requestFullscreen) {
+    overlay.requestFullscreen().catch(() => {});
+  }
 }
 
 function playAudio(path) {
@@ -287,6 +307,22 @@ function playAudio(path) {
 function closePlayer() {
   if (dplayer) { dplayer.destroy(); dplayer = null; }
   document.getElementById("player-overlay").classList.add("hidden");
+  document.getElementById("player-overlay").classList.remove("player-overlay-fullscreen");
+  if (document.fullscreenElement) document.exitFullscreen();
+}
+
+// --- Playlist navigation ---
+function switchVideo(dir) {
+  if (playlist.length === 0) return;
+  if (currentVideoIndex === -1) {
+    currentVideoIndex = playlist.indexOf(currentVideoPath);
+  }
+  if (currentVideoIndex === -1) currentVideoIndex = 0;
+  const next = (currentVideoIndex + dir + playlist.length) % playlist.length;
+  currentVideoIndex = next;
+  const path = playlist[next];
+  showToast(`Now playing: ${path.split("/").pop()} (${next + 1}/${playlist.length})`, "info");
+  playVideo(path);
 }
 
 // --- File Operations ---
@@ -668,6 +704,18 @@ function init() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { closePlayer(); hideContextMenu(); }
   });
+
+  const playerOverlay = document.getElementById("player-overlay");
+  let lastWheel = 0;
+  playerOverlay.addEventListener("wheel", (e) => {
+    if (playerOverlay.classList.contains("hidden")) return;
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastWheel < 500) return;
+    lastWheel = now;
+    if (e.deltaY > 0) switchVideo(1);
+    else switchVideo(-1);
+  }, { passive: false });
 
   loadStorageInfo();
 }
