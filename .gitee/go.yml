@@ -1,0 +1,17 @@
+name: Build & Push Docker Image
+
+stages:
+  - build
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD ghcr.io
+  script:
+    - docker build -t ghcr.io/$DOCKER_USER/my_nas:latest .
+    - docker push ghcr.io/$DOCKER_USER/my_nas:latest
+    - docker build -t ghcr.io/$DOCKER_USER/my_nas:quarkdrive ./quarkdrive
+    - docker push ghcr.io/$DOCKER_USER/my_nas:quarkdrive
