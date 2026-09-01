@@ -1,4 +1,5 @@
 name: Build & Push Docker Image
+displayName: Build Docker Images
 
 stages:
   - build
