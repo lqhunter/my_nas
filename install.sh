@@ -2,6 +2,7 @@
 set -e
 
 REPO="lqhunter/my_nas"
+GHCR_MIRROR="${GHCR_MIRROR:-ghcr.1ms.run}"
 MEDIA_DIR="${MEDIA_DIR:-/mnt/disk/nas}"
 PORT="${PORT:-8080}"
 QUARKDRIVE_PORT="${QUARKDRIVE_PORT:-$((PORT + 1))}"
@@ -17,9 +18,11 @@ fi
 
 mkdir -p "$MEDIA_DIR"
 
-echo -e "${BLUE}>>> Pulling images...${NC}"
-docker pull ghcr.io/$REPO:latest
-docker pull ghcr.io/$REPO:quarkdrive
+echo -e "${BLUE}>>> Pulling images (mirror: $GHCR_MIRROR)...${NC}"
+docker pull $GHCR_MIRROR/$REPO:latest
+docker tag $GHCR_MIRROR/$REPO:latest ghcr.io/$REPO:latest
+docker pull $GHCR_MIRROR/$REPO:quarkdrive
+docker tag $GHCR_MIRROR/$REPO:quarkdrive ghcr.io/$REPO:quarkdrive
 
 echo -e "${BLUE}>>> Starting media-server on port $PORT, media: $MEDIA_DIR${NC}"
 docker rm -f media-server 2>/dev/null || true
