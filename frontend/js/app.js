@@ -273,6 +273,7 @@ function playVideo(path) {
   currentVideoPath = path;
   overlay.classList.remove("hidden");
   overlay.classList.add("player-overlay-fullscreen");
+  container.classList.remove("portrait-video");
   title.textContent = path.split("/").pop();
   dplayer = new DPlayer({
     container: container,
@@ -282,6 +283,30 @@ function playVideo(path) {
   });
   dplayer.on("error", () => console.error(`[DPlayer] video error`));
   dplayer.on("play", () => console.log(`[DPlayer] playing`));
+  
+  // 检测视频尺寸，为竖屏视频添加特殊类名
+  const videoElement = container.querySelector('video');
+  if (videoElement) {
+    const checkVideoSize = () => {
+      if (videoElement.videoWidth && videoElement.videoHeight) {
+        // 竖屏视频：高度大于宽度
+        if (videoElement.videoHeight > videoElement.videoWidth) {
+          container.classList.add("portrait-video");
+        } else {
+          container.classList.remove("portrait-video");
+        }
+      }
+    };
+    
+    videoElement.addEventListener('loadedmetadata', checkVideoSize);
+    videoElement.addEventListener('resize', checkVideoSize);
+    
+    // 如果视频已经加载，立即检查
+    if (videoElement.readyState >= 1) {
+      checkVideoSize();
+    }
+  }
+  
   if (overlay.requestFullscreen) {
     overlay.requestFullscreen().catch(() => {});
   }

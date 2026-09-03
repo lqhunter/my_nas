@@ -723,6 +723,13 @@ html, body {
   max-height: 100%;
 }
 
+#dplayer-container.portrait-video .dplayer-video {
+  object-fit: contain !important;
+  width: auto;
+  height: 100%;
+  max-width: none;
+}
+
 #dplayer-container .dplayer-video-wrap {
   background: #000 !important;
   width: 100%;
