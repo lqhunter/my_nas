@@ -598,6 +598,18 @@ async function loadStorageInfo() {
   } catch (e) {}
 }
 
+// --- Version Info ---
+async function loadVersionInfo() {
+  try {
+    const res = await api("GET", "/api/version");
+    const data = await res.json();
+    const el = document.getElementById("version-info");
+    if (el && data.version) {
+      el.textContent = `v${data.version}`;
+    }
+  } catch (e) {}
+}
+
 // --- Settings ---
 async function loadSettings() {
   try {
@@ -718,6 +730,7 @@ function init() {
   }, { passive: false });
 
   loadStorageInfo();
+  loadVersionInfo();
 }
 
 document.addEventListener("DOMContentLoaded", init);

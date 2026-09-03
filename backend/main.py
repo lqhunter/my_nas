@@ -18,6 +18,8 @@ import uvicorn
 def log(msg):
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
+APP_VERSION = "1.0.0"
+
 app = FastAPI(title="Media Server")
 
 app.add_middleware(
@@ -476,8 +478,13 @@ async def get_settings():
     settings = load_settings()
     settings["_mediaRootEnv"] = MEDIA_ROOT
     settings["_portEnv"] = int(os.environ.get("PORT", "8000"))
+    settings["_version"] = APP_VERSION
     log("SETTINGS load")
     return settings
+
+@app.get("/api/version")
+async def get_version():
+    return {"version": APP_VERSION}
 
 @app.put("/api/settings")
 async def update_settings(data: dict):
