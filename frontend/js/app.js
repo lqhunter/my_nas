@@ -272,7 +272,7 @@ function playVideo(path) {
   currentVideoIndex = playlist.indexOf(path);
   currentVideoPath = path;
   overlay.classList.remove("hidden");
-  overlay.classList.add("player-overlay-fullscreen");
+  overlay.classList.remove("player-overlay-fullscreen");
   container.classList.remove("portrait-video");
   title.textContent = path.split("/").pop();
   dplayer = new DPlayer({
@@ -306,10 +306,7 @@ function playVideo(path) {
       checkVideoSize();
     }
   }
-  
-  if (overlay.requestFullscreen) {
-    overlay.requestFullscreen().catch(() => {});
-  }
+
 }
 
 function playAudio(path) {

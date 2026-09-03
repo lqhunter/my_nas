@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-REPO="lqhunter/my_nas"
+REPO="lqhunter/my-nas-app"
 GHCR_MIRROR="${GHCR_MIRROR:-ghcr.1ms.run}"
 MEDIA_DIR="${MEDIA_DIR:-/mnt/disk/nas}"
 PORT="${PORT:-8080}"
