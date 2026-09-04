@@ -36,12 +36,6 @@ jobs:
           echo "version=$MAJOR.$MINOR.$PATCH" >> "$GITHUB_OUTPUT"
           echo "Build version: $MAJOR.$MINOR.$PATCH"
 
-      - name: Write version into backend
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          sed -i "s/APP_VERSION = \".*\"/APP_VERSION = \"$VERSION\"/" backend/main.py
-          grep "APP_VERSION" backend/main.py
-
       - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}

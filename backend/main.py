@@ -18,7 +18,25 @@ import uvicorn
 def log(msg):
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
-APP_VERSION = "1.0.0"
+def _compute_version():
+    """Prefer APP_VERSION env; else derive from git commit count if repo present."""
+    env = os.environ.get("APP_VERSION")
+    if env:
+        return env
+    try:
+        import subprocess
+        repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+        count = subprocess.run(
+            ["git", "-C", repo, "rev-list", "--count", "HEAD"],
+            capture_output=True, text=True, timeout=3,
+        )
+        if count.returncode == 0 and count.stdout.strip().isdigit():
+            return f"1.0.{count.stdout.strip()}"
+    except Exception:
+        pass
+    return "1.0.0"
+
+APP_VERSION = _compute_version()
 
 app = FastAPI(title="Media Server")
 

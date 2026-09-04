@@ -35,6 +35,11 @@ fi
 
 mkdir -p "$MEDIA_DIR"
 
+# Compute version from git commit count
+COMMIT_COUNT=$(git -C "$CODE_DIR" rev-list --count HEAD 2>/dev/null || echo "0")
+VERSION="1.0.$COMMIT_COUNT"
+echo -e "${BLUE}>>> App version: $VERSION${NC}"
+
 # 2. Pull base image (only deps, code is mounted). Skip if already pulled.
 PULL_TARGET="ghcr.io/$REPO"
 if [ "$GHCR_MIRROR" != "ghcr.io" ]; then
@@ -66,6 +71,7 @@ docker run -d \
     -v "$CODE_DIR/frontend":/app/frontend \
     -v "$MEDIA_DIR":/media \
     -v media_config:/app/config \
+    -e APP_VERSION="$VERSION" \
     ghcr.io/$REPO:latest
 
 echo -e "${BLUE}>>> Starting quarkdrive on port $QUARKDRIVE_PORT${NC}"
