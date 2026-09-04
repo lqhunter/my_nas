@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
     tags: ["v*"]
+    paths:
+      - Dockerfile
+      - quarkdrive/Dockerfile
+      - backend/requirements.txt
+      - quarkdrive/requirements.txt
   workflow_dispatch:
 
 env:
