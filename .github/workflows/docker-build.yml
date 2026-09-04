@@ -19,6 +19,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute build version
+        id: version
+        run: |
+          MAJOR=1
+          MINOR=0
+          PATCH=$(git rev-list --count HEAD)
+          echo "version=$MAJOR.$MINOR.$PATCH" >> "$GITHUB_OUTPUT"
+          echo "Build version: $MAJOR.$MINOR.$PATCH"
+
+      - name: Write version into backend
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          sed -i "s/APP_VERSION = \".*\"/APP_VERSION = \"$VERSION\"/" backend/main.py
+          grep "APP_VERSION" backend/main.py
 
       - uses: docker/login-action@v3
         with:
@@ -35,6 +52,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.version.outputs.version }}
             type=semver,pattern={{version}}
             type=sha,prefix=
 
