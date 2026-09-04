@@ -5,10 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY quark_client/ quark_client/
-COPY main.py .
-COPY frontend/ frontend/
-
 RUN mkdir -p /data
 
 ENV PORT=8080

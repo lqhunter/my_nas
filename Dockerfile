@@ -2,6 +2,7 @@ FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -9,10 +10,7 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/ backend/
-COPY frontend/ frontend/
-
-RUN mkdir -p /media /tmp/thumbnails
+RUN mkdir -p /media /tmp/thumbnails /app/backend /app/frontend
 
 ENV MEDIA_ROOT=/media
 ENV THUMBNAIL_DIR=/tmp/thumbnails
