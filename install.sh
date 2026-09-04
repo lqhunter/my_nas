@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-REPO="lqhunter/my-nas"
+REPO="lqhunter/my_nas"
 GIT_URL="${GIT_URL:-https://github.com/lqhunter/my_nas.git}"
 GHCR_MIRROR="${GHCR_MIRROR:-ghcr.io}"
 CODE_DIR="${CODE_DIR:-/opt/my_nas}"
