@@ -3,7 +3,7 @@ set -e
 
 REPO="lqhunter/my-nas"
 GIT_URL="${GIT_URL:-https://github.com/lqhunter/my_nas.git}"
-GHCR_MIRROR="${GHCR_MIRROR:-ghcr.1ms.run}"
+GHCR_MIRROR="${GHCR_MIRROR:-ghcr.io}"
 CODE_DIR="${CODE_DIR:-/opt/my_nas}"
 MEDIA_DIR="${MEDIA_DIR:-/mnt/disk/nas}"
 PORT="${PORT:-8080}"
@@ -36,14 +36,23 @@ fi
 mkdir -p "$MEDIA_DIR"
 
 # 2. Pull base image (only deps, code is mounted). Skip if already pulled.
+PULL_TARGET="ghcr.io/$REPO"
+if [ "$GHCR_MIRROR" != "ghcr.io" ]; then
+    PULL_TARGET="$GHCR_MIRROR/$REPO"
+fi
+
 if ! docker image inspect ghcr.io/$REPO:latest &>/dev/null; then
-    echo -e "${BLUE}>>> Pulling base image (mirror: $GHCR_MIRROR)...${NC}"
-    docker pull $GHCR_MIRROR/$REPO:latest
-    docker tag $GHCR_MIRROR/$REPO:latest ghcr.io/$REPO:latest
+    echo -e "${BLUE}>>> Pulling base image (source: $PULL_TARGET)...${NC}"
+    docker pull $PULL_TARGET:latest
+    if [ "$GHCR_MIRROR" != "ghcr.io" ]; then
+        docker tag $PULL_TARGET:latest ghcr.io/$REPO:latest
+    fi
 fi
 if ! docker image inspect ghcr.io/$REPO:quarkdrive &>/dev/null; then
-    docker pull $GHCR_MIRROR/$REPO:quarkdrive
-    docker tag $GHCR_MIRROR/$REPO:quarkdrive ghcr.io/$REPO:quarkdrive
+    docker pull $PULL_TARGET:quarkdrive
+    if [ "$GHCR_MIRROR" != "ghcr.io" ]; then
+        docker tag $PULL_TARGET:quarkdrive ghcr.io/$REPO:quarkdrive
+    fi
 fi
 
 # 3. Run / restart containers (code mounted from disk -> no rebuild needed)
