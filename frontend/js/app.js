@@ -493,6 +493,9 @@ function setupUpload() {
   const input = document.createElement("input");
   input.type = "file";
   input.multiple = true;
+  input.style.position = "fixed";
+  input.style.left = "-9999px";
+  document.body.appendChild(input);
   input.addEventListener("change", () => {
     if (input.files.length) uploadFiles(input.files);
     input.value = "";
@@ -503,59 +506,81 @@ function setupUpload() {
 }
 
 async function uploadFiles(files) {
-  const formData = new FormData();
-  for (const file of files) {
-    formData.append("files", file);
-  }
+  const fileList = Array.from(files);
+  const total = fileList.length;
+  if (total === 0) return;
 
   const progressEl = document.createElement("div");
   progressEl.className = "upload-progress";
-  progressEl.innerHTML = `<div class="upload-progress-title">Uploading ${files.length} file(s)...</div>
+  progressEl.innerHTML = `<div class="upload-progress-title">Uploading 0/${total}...</div>
     <div class="upload-progress-bar"><div class="upload-progress-fill" style="width:0%"></div></div>
     <div class="upload-progress-text">0%</div>`;
   document.body.appendChild(progressEl);
 
-  try {
+  const titleEl = progressEl.querySelector(".upload-progress-title");
+  const fillEl = progressEl.querySelector(".upload-progress-fill");
+  const textEl = progressEl.querySelector(".upload-progress-text");
+
+  let okCount = 0;
+  const errors = [];
+
+  for (let i = 0; i < total; i++) {
+    const file = fileList[i];
+    titleEl.textContent = `Uploading ${i + 1}/${total}: ${file.name}`;
+    fillEl.style.width = "0%";
+    textEl.textContent = "0%";
+    try {
+      await uploadSingleFile(file, (pct) => {
+        fillEl.style.width = pct + "%";
+        textEl.textContent = pct + "%";
+      });
+      okCount++;
+    } catch (e) {
+      errors.push(`${file.name}: ${e.message}`);
+    }
+  }
+
+  if (errors.length) {
+    progressEl.remove();
+    showToast(`Uploaded ${okCount}/${total}. Failed: ${errors.join("; ")}`, "error");
+  } else {
+    titleEl.textContent = `Upload complete (${total} file${total > 1 ? "s" : ""})`;
+    fillEl.style.width = "100%";
+    textEl.textContent = "100%";
+    setTimeout(() => progressEl.remove(), 2000);
+    showToast(`Uploaded ${total} file${total > 1 ? "s" : ""}`, "success");
+  }
+  loadDirectory(currentPath);
+}
+
+function uploadSingleFile(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("files", file);
+
     const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) {
-        const pct = Math.round((e.loaded / e.total) * 100);
-        progressEl.querySelector(".upload-progress-fill").style.width = pct + "%";
-        progressEl.querySelector(".upload-progress-text").textContent = pct + "%";
-      }
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
     });
-
-    await new Promise((resolve, reject) => {
-      xhr.addEventListener("load", () => {
-        if (xhr.status < 200 || xhr.status >= 300) {
-          reject(new Error(`Upload failed (HTTP ${xhr.status})`));
+    xhr.addEventListener("load", () => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(`HTTP ${xhr.status}`));
+        return;
+      }
+      try {
+        const data = JSON.parse(xhr.responseText);
+        const failed = (data.results || []).filter((r) => r.status !== "ok");
+        if (failed.length) {
+          reject(new Error(failed.map((r) => r.error || "failed").join("; ")));
           return;
         }
-        try {
-          const data = JSON.parse(xhr.responseText);
-          const failed = (data.results || []).filter((r) => r.status !== "ok");
-          if (failed.length) {
-            reject(new Error(failed.map((r) => `${r.name}: ${r.error || "failed"}`).join("; ")));
-            return;
-          }
-        } catch (e) {}
-        resolve();
-      });
-      xhr.addEventListener("error", () => reject(new Error("Upload failed (network)")));
-      xhr.open("POST", `${API_BASE}/api/files/upload?path=${encodeURIComponent(currentPath)}`);
-      xhr.send(formData);
+      } catch (e) {}
+      resolve();
     });
-
-    progressEl.querySelector(".upload-progress-title").textContent = "Upload complete!";
-    progressEl.querySelector(".upload-progress-fill").style.width = "100%";
-    progressEl.querySelector(".upload-progress-text").textContent = "100%";
-    setTimeout(() => progressEl.remove(), 2000);
-    showToast("Upload successful", "success");
-    loadDirectory(currentPath);
-  } catch (e) {
-    progressEl.remove();
-    showToast(e.message, "error");
-  }
+    xhr.addEventListener("error", () => reject(new Error("network error")));
+    xhr.open("POST", `${API_BASE}/api/files/upload?path=${encodeURIComponent(currentPath)}`);
+    xhr.send(formData);
+  });
 }
 
 // --- Drag & Drop ---
