@@ -527,10 +527,21 @@ async function uploadFiles(files) {
 
     await new Promise((resolve, reject) => {
       xhr.addEventListener("load", () => {
-        if (xhr.status >= 200 && xhr.status < 300) resolve();
-        else reject(new Error("Upload failed"));
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(new Error(`Upload failed (HTTP ${xhr.status})`));
+          return;
+        }
+        try {
+          const data = JSON.parse(xhr.responseText);
+          const failed = (data.results || []).filter((r) => r.status !== "ok");
+          if (failed.length) {
+            reject(new Error(failed.map((r) => `${r.name}: ${r.error || "failed"}`).join("; ")));
+            return;
+          }
+        } catch (e) {}
+        resolve();
       });
-      xhr.addEventListener("error", () => reject(new Error("Upload failed")));
+      xhr.addEventListener("error", () => reject(new Error("Upload failed (network)")));
       xhr.open("POST", `${API_BASE}/api/files/upload?path=${encodeURIComponent(currentPath)}`);
       xhr.send(formData);
     });

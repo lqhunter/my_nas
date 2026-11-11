@@ -230,14 +230,22 @@ async def upload_file(path: str = "", files: list[UploadFile] = File(...)):
         raise HTTPException(400, "Target directory does not exist")
     results = []
     for file in files:
-        file_path = target_dir / file.filename
+        name = os.path.basename(file.filename or "unnamed")
+        file_path = target_dir / name
         try:
-            content = await file.read()
+            total = 0
             with open(file_path, "wb") as f:
-                f.write(content)
-            results.append({"name": file.filename, "status": "ok", "size": len(content)})
+                while True:
+                    chunk = await file.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    total += len(chunk)
+            log(f"UPLOAD ok {name} -> {file_path} size={total}")
+            results.append({"name": name, "status": "ok", "size": total})
         except Exception as e:
-            results.append({"name": file.filename, "status": "error", "error": str(e)})
+            log(f"UPLOAD error {name} -> {file_path}: {e}")
+            results.append({"name": name, "status": "error", "error": str(e)})
     return {"status": "ok", "results": results}
 
 # --- Rename ---
