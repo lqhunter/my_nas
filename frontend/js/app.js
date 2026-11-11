@@ -11,10 +11,57 @@ let currentVideoIndex = -1;
 let currentVideoPath = "";
 
 const VIDEO_EXTS = ["mp4", "webm", "mkv", "avi", "mov", "wmv", "flv", "m4v"];
+const AUDIO_EXTS = ["mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"];
 
 function isVideoPath(path) {
   const ext = path.split(".").pop().toLowerCase();
   return VIDEO_EXTS.includes(ext);
+}
+
+function isAudioPath(path) {
+  const ext = path.split(".").pop().toLowerCase();
+  return AUDIO_EXTS.includes(ext);
+}
+
+function isPlayablePath(path) {
+  return isVideoPath(path) || isAudioPath(path);
+}
+
+async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {}
+  }
+  // Fallback for plain HTTP (non-secure context)
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.top = "-9999px";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (e) {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function getAbsoluteMediaUrl(path) {
+  const type = isAudioPath(path) ? "audio" : "video";
+  return `${window.location.origin}${getMediaUrl(type, path)}`;
+}
+
+async function copyMediaLink(path) {
+  const url = getAbsoluteMediaUrl(path);
+  const ok = await copyToClipboard(url);
+  showToast(ok ? `Link copied: ${url}` : "Copy failed", ok ? "success" : "error");
 }
 
 const FILE_ICONS = {
@@ -538,7 +585,13 @@ function showContextMenu(x, y, path, isDir) {
 
   menu.querySelectorAll("[data-action]").forEach((item) => {
     const action = item.dataset.action;
-    item.style.display = action === "play" ? (isDir ? "none" : "") : "";
+    if (action === "play") {
+      item.style.display = isDir ? "none" : "";
+    } else if (action === "copylink") {
+      item.style.display = (!isDir && isPlayablePath(path)) ? "" : "none";
+    } else {
+      item.style.display = "";
+    }
   });
 
   menu.style.left = x + "px";
@@ -564,6 +617,7 @@ document.getElementById("context-menu").querySelectorAll("[data-action]").forEac
     const action = item.dataset.action;
     if (action === "play") openFile(contextTarget);
     if (action === "download") downloadFile(contextTarget);
+    if (action === "copylink") copyMediaLink(contextTarget);
     if (action === "rename") showRenameModal(contextTarget);
     if (action === "delete") deleteFile(contextTarget);
     hideContextMenu();
